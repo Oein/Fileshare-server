@@ -11,7 +11,7 @@ import {
   writeFile,
   writeFileSync,
 } from "fs";
-import { join } from "path";
+import { join, sep } from "path";
 
 const app = express();
 app.use(
@@ -26,6 +26,9 @@ const tempDir = join(baseDir, "temp");
 
 //ensure temp
 mkdirSync(tempDir, {
+  recursive: true,
+});
+mkdirSync(resultDir, {
   recursive: true,
 });
 
@@ -76,7 +79,7 @@ app.post("/finalize", (req, res) => {
   const filename = atob(files[0]);
 
   const file = join(resultDir, filename);
-  const dir = file.split("/").slice(0, -1).join("/");
+  const dir = file.split(sep).slice(0, -1).join(sep);
   mkdirSync(dir, {
     recursive: true,
   });
