@@ -65,14 +65,14 @@ app.post("/upload", (req, res) => {
   if (!existsSync(configFile)) return res.status(400).send("Invalid ID");
   appendFileSync(configFile, "!" + uuid);
 
-  writeFile(join(tempDir, uuid), Buffer.from(body.data, "ascii"), () => {
+  writeFile(join(tempDir, uuid), Buffer.from(body.data, "base64"), () => {
     res.status(200).send(uuid);
   });
 });
 
 app.post("/finalize", (req, res) => {
   const id = req.body.id as string;
-  const files = readFileSync(join(tempDir, id), "ascii")
+  const files = readFileSync(join(tempDir, id), "utf-8")
     .split("!")
     .filter((x) => x.trim().length > 0);
 
@@ -89,7 +89,11 @@ app.post("/finalize", (req, res) => {
 
   for (let i = 1; i < files.length; i++) {
     const filechunk = files[i];
-    appendFileSync(file, readFileSync(join(tempDir, filechunk)));
+    appendFileSync(
+      file,
+      readFileSync(join(tempDir, filechunk), "base64"),
+      "base64"
+    );
     rmSync(join(tempDir, filechunk));
   }
 
